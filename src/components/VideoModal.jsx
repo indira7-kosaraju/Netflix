@@ -1,0 +1,2 @@
+import { X, Play } from 'lucide-react'
+export default function VideoModal({ movie, onClose }) { if (!movie) return null; return <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label={`${movie.title} player`}><div className="video-modal"><button className="modal-close" onClick={onClose} aria-label="Close player"><X /></button><div className="video-placeholder"><Play fill="currentColor" size={42} /><span>Preview player</span></div><h2>{movie.title}</h2><p>Streaming preview will be connected when the backend and video service are ready.</p></div></div> }

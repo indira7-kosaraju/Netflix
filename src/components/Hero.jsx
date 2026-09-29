@@ -1,0 +1,5 @@
+import { Info, Play } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import VideoModal from './VideoModal'
+export default function Hero({ movie }) { const [playing, setPlaying] = useState(false); return <><section className="hero" style={{ '--hero-image': `url(${movie.backdrop})` }}><div className="hero-copy"><div className="eyebrow"><span className="eyebrow-mark">N</span> NETFLIX CLONE ORIGINAL</div><h1>{movie.title}</h1><div className="hero-meta"><strong>★ {movie.rating}</strong><span>{movie.year}</span><span>{movie.duration}</span><span>{movie.genre.join(' · ')}</span></div><p>{movie.description}</p><div className="hero-actions"><button className="primary-button" onClick={() => setPlaying(true)}><Play fill="currentColor" size={18} /> Play</button><Link className="secondary-button" to={`/movie/${movie.id}`}><Info size={18} /> More info</Link></div></div></section><VideoModal movie={playing ? movie : null} onClose={() => setPlaying(false)} /></> }
