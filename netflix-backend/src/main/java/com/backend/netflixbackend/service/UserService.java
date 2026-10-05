@@ -6,18 +6,21 @@ import java.util.Optional;
 import com.backend.netflixbackend.entity.User;
 import com.backend.netflixbackend.repository.UserRepository;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     public User CreateUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -37,7 +40,7 @@ public class UserService {
         Optional<User> user = userRepository.findByEmail(email);
 
         if (user.isPresent() &&
-            user.get().getPassword().equals(password)) {
+            passwordEncoder.matches(password, user.get().getPassword())) {
             return user;
         }
 

@@ -2,7 +2,6 @@ package com.backend.netflixbackend.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.backend.netflixbackend.service.UserService;
 import com.backend.netflixbackend.entity.User;
@@ -19,10 +18,6 @@ import java.util.Optional;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = {
-    "http://localhost:5173",
-    "http://localhost:5174"
-})
 @RequestMapping("/api/users")
 public class UserController {
 
