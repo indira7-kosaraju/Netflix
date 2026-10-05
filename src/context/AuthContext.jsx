@@ -1,12 +1,104 @@
 import { createContext, useContext, useState } from 'react'
+import { loginUser, registerUser } from '../services/api'
+
 const AuthContext = createContext(null)
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('netflix-user') || 'null'))
-  const login = (email, password, name = 'Alex Morgan') => { if (!email || !password) throw new Error('Please enter your email and password.'); const nextUser = { name, email }; localStorage.setItem('netflix-user', JSON.stringify(nextUser)); setUser(nextUser); return nextUser }
-  const register = (name, email, password) => login(email, password, name)
-  const logout = () => { localStorage.removeItem('netflix-user'); setUser(null) }
-  return <AuthContext.Provider value={{ user, login, register, logout }}>{children}</AuthContext.Provider>
+
+function getSavedUser() {
+  try {
+    const savedUser = localStorage.getItem('netflix-user')
+
+    if (!savedUser || savedUser === 'undefined' || savedUser === 'null') {
+      localStorage.removeItem('netflix-user')
+      return null
+    }
+
+    const parsedUser = JSON.parse(savedUser)
+
+    if (!parsedUser || typeof parsedUser !== 'object') {
+      localStorage.removeItem('netflix-user')
+      return null
+    }
+
+    return parsedUser
+  } catch (error) {
+    localStorage.removeItem('netflix-user')
+    return null
+  }
 }
-// The hook lives beside its provider so auth wiring stays easy to replace later.
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(getSavedUser)
+
+  const login = async (email, password) => {
+    if (!email || !password) {
+      throw new Error('Please enter your email and password.')
+    }
+
+    const response = await loginUser({
+      email,
+      password
+    })
+
+    if (!response || !response.user) {
+      throw new Error('Invalid response from server.')
+    }
+
+    const nextUser = response.user
+
+    localStorage.setItem(
+      'netflix-user',
+      JSON.stringify(nextUser)
+    )
+
+    setUser(nextUser)
+
+    return nextUser
+  }
+
+  const register = async (name, email, password) => {
+    if (!name || !email || !password) {
+      throw new Error('Please complete every field.')
+    }
+
+    const response = await registerUser({
+      name,
+      email,
+      password
+    })
+
+    const nextUser = response.user || {
+      name,
+      email
+    }
+
+    localStorage.setItem(
+      'netflix-user',
+      JSON.stringify(nextUser)
+    )
+
+    setUser(nextUser)
+
+    return nextUser
+  }
+
+  const logout = () => {
+    localStorage.removeItem('netflix-user')
+    setUser(null)
+  }
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        register,
+        logout
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext)
